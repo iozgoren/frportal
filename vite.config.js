@@ -9,6 +9,7 @@ export default defineConfig({
     port: 5173,
     hmr: {
       port: 5173
-    }
+    },
+    allowedHosts: 'all'
   }
 })
