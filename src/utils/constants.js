@@ -31,7 +31,7 @@ export const API_ENDPOINTS = {
 
   // Notifications
   NOTIFICATIONS: '/notifications',
-  MARK_NOTIFICATION_READ: (id) => `/notifications/${id}/read'
+  MARK_NOTIFICATION_READ: (id) => `/notifications/${id}/read`
 };
 
 // Asset types
