@@ -10,6 +10,10 @@ export default defineConfig({
     hmr: {
       port: 5173
     },
-    allowedHosts: 'all'
+    allowedHosts: [
+      'localhost',
+      '.replit.dev',
+      '32067c60-017e-44db-83cf-89d522d3c801-00-1nocsez6zse53.sisko.replit.dev'
+    ]
   }
 })
