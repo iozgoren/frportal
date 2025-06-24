@@ -1,5 +1,38 @@
 // src/utils/constants.js
-export const API_BASE_URL = 'https://api.frportal.example.com'; // Replace with actual API URL
+export const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://0.0.0.0:5000/api';
+
+export const API_ENDPOINTS = {
+  // Auth endpoints
+  LOGIN: '/auth/login',
+  LOGOUT: '/auth/logout',
+  REFRESH_TOKEN: '/auth/refresh-token',
+  VALIDATE_TOKEN: '/auth/validate-token',
+  USER_PROFILE: '/auth/profile',
+  USER_BRANDS: '/auth/user-brands',
+  USER_ROLES: '/auth/user-roles',
+  CHANGE_PASSWORD: '/auth/change-password',
+
+  // User management
+  USERS: '/users',
+  USER_BY_ID: (id) => `/users/${id}`,
+
+  // Asset management
+  ASSETS: '/assets',
+  ASSET_BY_ID: (id) => `/assets/${id}`,
+  ASSET_SHARE: (id) => `/assets/${id}/share`,
+
+  // Folder management
+  FOLDERS: '/folders',
+  FOLDER_BY_ID: (id) => `/folders/${id}`,
+
+  // Brand management
+  BRANDS: '/brands',
+  BRAND_BY_ID: (id) => `/brands/${id}`,
+
+  // Notifications
+  NOTIFICATIONS: '/notifications',
+  MARK_NOTIFICATION_READ: (id) => `/notifications/${id}/read'
+};
 
 // Asset types
 export const ASSET_TYPES = {

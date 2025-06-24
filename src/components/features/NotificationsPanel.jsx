@@ -3,6 +3,8 @@ import React, { useState, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import { markNotificationAsRead, markAllNotificationsAsRead } from '../../store/slices/uiSlice';
 
+import notificationService from '../../services/notificationService';
+
 const NotificationsPanel = () => {
   const dispatch = useDispatch();
   const [notifications, setNotifications] = useState([]);
@@ -12,18 +14,18 @@ const NotificationsPanel = () => {
   useEffect(() => {
     const fetchNotifications = async () => {
       try {
-        // In a real application, this would be an API call
-        // const response = await api.get(API_ENDPOINTS.NOTIFICATIONS);
-        // setNotifications(response.data);
-        
-        // Mock notifications data
-        setTimeout(() => {
+        const response = await notificationService.getNotifications();
+        setNotifications(response.notifications || response);
+      } catch (error) {
+        console.error('Error fetching notifications:', error);
+        // Fallback to mock data in development
+        if (process.env.NODE_ENV === 'development') {
           setNotifications([
             {
               id: '1',
               title: 'New asset shared',
               message: 'John Doe shared a new asset with you: Brand Guidelines 2023',
-              timestamp: new Date(Date.now() - 1000 * 60 * 30).toISOString(), // 30 minutes ago
+              timestamp: new Date(Date.now() - 1000 * 60 * 30).toISOString(),
               read: false,
               type: 'share'
             },
@@ -31,7 +33,7 @@ const NotificationsPanel = () => {
               id: '2',
               title: 'Asset updated',
               message: 'Marketing Presentation was updated by Jane Smith',
-              timestamp: new Date(Date.now() - 1000 * 60 * 60 * 3).toISOString(), // 3 hours ago
+              timestamp: new Date(Date.now() - 1000 * 60 * 60 * 3).toISOString(),
               read: false,
               type: 'update'
             },
@@ -39,7 +41,7 @@ const NotificationsPanel = () => {
               id: '3',
               title: 'Comment on asset',
               message: 'Robert Johnson commented on Logo Design: "Looks great, approved!"',
-              timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString(), // 1 day ago
+              timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString(),
               read: true,
               type: 'comment'
             }

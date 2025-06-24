@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import Button from '../../components/common/Button';
 import Input from '../../components/common/Input';
+import userService from '../../services/userService';
 
 // Mock data for development
 const mockUsers = [
@@ -73,16 +74,15 @@ const UserManagement = () => {
       setError(null);
       
       try {
-        // In a real application, this would be an API call
-        // const response = await api.get('/api/users');
-        // setUsers(response.data);
-        
-        // Mock API response using timeout
-        await new Promise(resolve => setTimeout(resolve, 800));
-        setUsers(mockUsers);
+        const response = await userService.getUsers();
+        setUsers(response.users || response);
       } catch (err) {
         console.error('Error fetching users:', err);
-        setError('Failed to load users. Please try again.');
+        setError(err.message || 'Kullanıcılar yüklenirken hata oluştu.');
+        // Fallback to mock data in development
+        if (process.env.NODE_ENV === 'development') {
+          setUsers(mockUsers);
+        }
       } finally {
         setLoading(false);
       }
