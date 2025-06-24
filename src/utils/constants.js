@@ -37,11 +37,37 @@ export const ASSET_TYPES = {
   OTHER: 'other'
 };
 
+// Asset types
+export const ASSET_TYPES = {
+  IMAGE: 'image',
+  VIDEO: 'video',
+  DOCUMENT: 'document',
+  AUDIO: 'audio',
+  OTHER: 'other'
+};
+
 // User roles
 export const USER_ROLES = {
   ADMIN: 'admin',
   USER: 'user',
   GUEST: 'guest'
+};
+
+// File size limits (in bytes)
+export const MAX_FILE_SIZE = {
+  [ASSET_TYPES.IMAGE]: 10 * 1024 * 1024, // 10MB
+  [ASSET_TYPES.VIDEO]: 100 * 1024 * 1024, // 100MB
+  [ASSET_TYPES.DOCUMENT]: 25 * 1024 * 1024, // 25MB
+  [ASSET_TYPES.AUDIO]: 50 * 1024 * 1024, // 50MB
+  [ASSET_TYPES.OTHER]: 25 * 1024 * 1024 // 25MB
+};
+
+// File extensions by type
+export const FILE_EXTENSIONS = {
+  [ASSET_TYPES.IMAGE]: ['.jpg', '.jpeg', '.png', '.gif', '.svg', '.webp'],
+  [ASSET_TYPES.VIDEO]: ['.mp4', '.avi', '.mov', '.wmv', '.mkv', '.webm'],
+  [ASSET_TYPES.DOCUMENT]: ['.pdf', '.doc', '.docx', '.xls', '.xlsx', '.ppt', '.pptx', '.txt'],
+  [ASSET_TYPES.AUDIO]: ['.mp3', '.wav', '.ogg', '.m4a', '.flac']
 };
 
 // File size limits (in MB)
