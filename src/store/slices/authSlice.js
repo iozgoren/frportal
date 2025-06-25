@@ -1,47 +1,14 @@
-// src/store/slices/authSlice.js
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 
-// Mock authentication service
-const mockAuthService = {
-  login: async (credentials) => {
-    await new Promise(resolve => setTimeout(resolve, 800));
-    
-    // For demo purposes, hardcoded user credentials
-    if (
-      (credentials.username === 'admin' && credentials.password === 'password') ||
-      (credentials.username === 'user' && credentials.password === 'password')
-    ) {
-      const isAdmin = credentials.username === 'admin';
-      return {
-        id: isAdmin ? '1' : '2',
-        username: credentials.username,
-        name: isAdmin ? 'Admin User' : 'Regular User',
-        email: isAdmin ? 'admin@example.com' : 'user@example.com',
-        role: isAdmin ? 'Admin' : 'User',
-        avatarUrl: `https://placehold.co/200x200/${isAdmin ? '4F46E5' : '10B981'}/FFFFFF?text=${credentials.username.charAt(0).toUpperCase()}`,
-        permissions: isAdmin ? ['admin', 'user'] : ['user'],
-        preferences: {
-          theme: 'light',
-          notifications: true
-        }
-      };
-    }
-    
-    throw new Error('Invalid username or password');
-  },
-  
-  logout: async () => {
-    await new Promise(resolve => setTimeout(resolve, 300));
-    return true;
-  }
-};
+import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import authService from '../../services/authService';
 
 // Async thunks
 export const login = createAsyncThunk(
   'auth/login',
   async (credentials, { rejectWithValue }) => {
     try {
-      return await mockAuthService.login(credentials);
+      const response = await authService.login(credentials.username, credentials.password);
+      return response;
     } catch (error) {
       return rejectWithValue(error.message);
     }
@@ -52,8 +19,24 @@ export const logout = createAsyncThunk(
   'auth/logout',
   async (_, { rejectWithValue }) => {
     try {
-      await mockAuthService.logout();
+      await authService.logout();
       return true;
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
+export const validateToken = createAsyncThunk(
+  'auth/validateToken',
+  async (_, { rejectWithValue }) => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        throw new Error('No token found');
+      }
+      const user = await authService.validateToken(token);
+      return { user, token };
     } catch (error) {
       return rejectWithValue(error.message);
     }
@@ -78,6 +61,17 @@ const authSlice = createSlice({
     clearError: (state) => {
       state.error = null;
     },
+    setCredentials: (state, action) => {
+      const { user, token } = action.payload;
+      state.user = user;
+      state.token = token;
+      state.isAuthenticated = true;
+    },
+    clearCredentials: (state) => {
+      state.user = null;
+      state.token = null;
+      state.isAuthenticated = false;
+    }
   },
   extraReducers: (builder) => {
     builder
@@ -88,15 +82,14 @@ const authSlice = createSlice({
       })
       .addCase(login.fulfilled, (state, action) => {
         state.loading = false;
-        state.user = action.payload;
-        state.token = `mock-jwt-token-${Date.now()}`;
+        state.user = action.payload.user;
+        state.token = action.payload.token;
         state.isAuthenticated = true;
-        // In a real app, store token in localStorage
-        localStorage.setItem('token', state.token);
       })
       .addCase(login.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload || 'Authentication failed';
+        state.isAuthenticated = false;
       })
       
       // Logout
@@ -108,16 +101,33 @@ const authSlice = createSlice({
         state.token = null;
         state.isAuthenticated = false;
         state.loading = false;
-        // In a real app, remove token from localStorage
-        localStorage.removeItem('token');
       })
       .addCase(logout.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload || 'Logout failed';
+      })
+
+      // Validate token
+      .addCase(validateToken.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(validateToken.fulfilled, (state, action) => {
+        state.loading = false;
+        state.user = action.payload.user;
+        state.token = action.payload.token;
+        state.isAuthenticated = true;
+      })
+      .addCase(validateToken.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+        state.isAuthenticated = false;
+        // Clear stored tokens if validation fails
+        localStorage.removeItem('token');
+        localStorage.removeItem('refreshToken');
       });
   }
 });
 
-export const { setUser, clearError } = authSlice.actions;
+export const { setUser, clearError, setCredentials, clearCredentials } = authSlice.actions;
 
 export default authSlice.reducer;
