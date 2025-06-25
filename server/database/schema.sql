@@ -46,6 +46,56 @@ CREATE TABLE folders (
 -- Assets table
 CREATE TABLE assets (
   id INT PRIMARY KEY AUTO_INCREMENT,
+  filename VARCHAR(255) NOT NULL,
+  original_filename VARCHAR(255) NOT NULL,
+  file_path VARCHAR(500) NOT NULL,
+  file_size BIGINT NOT NULL,
+  mime_type VARCHAR(100) NOT NULL,
+  asset_type ENUM('image', 'video', 'document', 'audio', 'other') NOT NULL,
+  title VARCHAR(255),
+  description TEXT,
+  tags TEXT,
+  folder_id INT,
+  brand_id INT,
+  uploaded_by INT NOT NULL,
+  status ENUM('active', 'inactive', 'deleted') DEFAULT 'active',
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  FOREIGN KEY (folder_id) REFERENCES folders(id) ON DELETE SET NULL,
+  FOREIGN KEY (brand_id) REFERENCES brands(id) ON DELETE SET NULL,
+  FOREIGN KEY (uploaded_by) REFERENCES users(id) ON DELETE CASCADE
+);
+
+-- Notifications table
+CREATE TABLE notifications (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  user_id INT NOT NULL,
+  title VARCHAR(255) NOT NULL,
+  message TEXT NOT NULL,
+  type ENUM('info', 'success', 'warning', 'error', 'share', 'update') DEFAULT 'info',
+  data JSON,
+  read_at TIMESTAMP NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+-- Asset shares table
+CREATE TABLE asset_shares (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  asset_id INT NOT NULL,
+  shared_by INT NOT NULL,
+  shared_with INT NOT NULL,
+  permission ENUM('view', 'download', 'edit') DEFAULT 'view',
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (asset_id) REFERENCES assets(id) ON DELETE CASCADE,
+  FOREIGN KEY (shared_by) REFERENCES users(id) ON DELETE CASCADE,
+  FOREIGN KEY (shared_with) REFERENCES users(id) ON DELETE CASCADE,
+  UNIQUE KEY unique_share (asset_id, shared_with)
+);
+
+-- Assets table
+CREATE TABLE assets (
+  id INT PRIMARY KEY AUTO_INCREMENT,
   name VARCHAR(255) NOT NULL,
   description TEXT,
   file_path VARCHAR(500) NOT NULL,
